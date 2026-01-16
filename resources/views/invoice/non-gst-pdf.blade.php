@@ -362,7 +362,7 @@
             <table class="header-table">
                 <tr>
                     <td class="company-cell">
-                        @if(!empty($invoice->company_name->logo))
+                        @if(!empty($invoice->company_name->logo) && file_exists(public_path('storage/'.$invoice->company_name->logo)))
                             <img src="{{ public_path('storage/'.$invoice->company_name->logo) }}" class="logo">
                         @endif
                         <div class="company-info">

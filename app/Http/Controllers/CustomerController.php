@@ -47,7 +47,6 @@ class CustomerController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email',
         ]);
 
         if ($validator->fails()) {
@@ -86,7 +85,6 @@ class CustomerController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email',
         ]);
 
         if ($validator->fails()) {

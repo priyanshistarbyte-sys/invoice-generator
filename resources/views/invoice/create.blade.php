@@ -1,5 +1,59 @@
 @extends('layouts.main')
 
+@push('styles')
+<style>
+input[readonly] {
+    background-color: #dde2e7 !important;
+}
+
+@media (max-width: 768px) {
+    #itemsTable {
+        font-size: 12px;
+    }
+    
+    #itemsTable thead {
+        display: none;
+    }
+    
+    #itemsTable tbody tr {
+        display: block;
+        border: 1px solid #ddd;
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        background: #f9f9f9;
+    }
+    
+    #itemsTable tbody td {
+        display: block;
+        text-align: left !important;
+        border: none;
+        padding: 5px 0;
+        position: relative;
+        padding-left: 35%;
+    }
+    
+    #itemsTable tbody td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 30%;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    #itemsTable tbody td:last-child {
+        text-align: center !important;
+        padding-left: 0;
+    }
+    
+    #itemsTable tbody td:last-child:before {
+        display: none;
+    }
+}
+</style>
+@endpush
+
 @section('content')
     <div class="container-fluid">
         <div class="row">
@@ -95,22 +149,24 @@
                                             </thead>
                                             <tbody id="itemsBody">
                                                 <tr class="item-row">
-                                                    <td><input type="text" class="form-control"
-                                                            name="items[0][description]" required></td>
-                                                    <td><input type="number" class="form-control hsn" name="items[0][hsn]"></td>
-                                                    <td><input type="number" class="form-control quantity"
+                                                    <td data-label="Description">
+                                                        <textarea class="form-control mb-2" name="items[0][description]" rows="2" required></textarea>
+                                                        <textarea class="form-control" name="items[0][sub_description]" rows="2"></textarea>
+                                                    </td>
+                                                    <td data-label="HSN/SAC"><input type="number" class="form-control hsn" name="items[0][hsn]"></td>
+                                                    <td data-label="Quantity"><input type="number" class="form-control quantity"
                                                             name="items[0][quantity]" step="0.01" min="1" value="1"></td>
-                                                    <td><input type="number" class="form-control rate"
+                                                    <td data-label="Rate"><input type="number" class="form-control rate"
                                                             name="items[0][rate]" step="0.01" min="0" required>
                                                     </td>
-                                                    <td>
+                                                    <td data-label="Tax">
                                                         <select class="form-select tax-type" name="items[0][tax_type]">
                                                             <option value="none">No Tax</option>
                                                             <option value="igst">IGST (18%)</option>
                                                             <option value="sgst_cgst">SGST+CGST (9%+9%)</option>
                                                         </select>
                                                     </td>
-                                                    <td><input type="text" class="form-control total-amount"
+                                                    <td data-label="Total Amount"><input type="text" class="form-control total-amount"
                                                             name="items[0][total_amount]" readonly></td>
                                                     <td></td>
                                                 </tr>
@@ -204,13 +260,7 @@
         </div>
     </div>
 @endsection
-@push('styles')
-<style>
-input[readonly] {
-    background-color: #dde2e7 !important;
-}
-</style>
-@endpush
+
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -221,18 +271,21 @@ input[readonly] {
                 const tbody = document.getElementById('itemsBody');
                 const newRow = `
             <tr class="item-row">
-                <td><input type="text" class="form-control" name="items[${itemIndex}][description]" required></td>
-                <td><input type="number" class="form-control hsn" name="items[${itemIndex}][hsn]"></td>
-                <td><input type="number" class="form-control quantity" name="items[${itemIndex}][quantity]" step="0.01" min="1" value="1"></td>
-                <td><input type="number" class="form-control rate" name="items[${itemIndex}][rate]" step="0.01" min="0" required></td>
-                <td>
+                <td data-label="Description">
+                    <textarea class="form-control mb-2" name="items[${itemIndex}][description]" rows="2" required ></textarea>
+                    <textarea class="form-control" name="items[${itemIndex}][sub_description]" rows="2" ></textarea>
+                </td>
+                <td data-label="HSN/SAC"><input type="number" class="form-control hsn" name="items[${itemIndex}][hsn]"></td>
+                <td data-label="Quantity"><input type="number" class="form-control quantity" name="items[${itemIndex}][quantity]" step="0.01" min="1" value="1"></td>
+                <td data-label="Rate"><input type="number" class="form-control rate" name="items[${itemIndex}][rate]" step="0.01" min="0" required></td>
+                <td data-label="Tax">
                     <select class="form-select tax-type" name="items[${itemIndex}][tax_type]">
                         <option value="none">No Tax</option>
                         <option value="igst">IGST (18%)</option>
                         <option value="sgst_cgst">SGST+CGST (9%+9%)</option>
                     </select>
                 </td>
-                <td><input type="text" class="form-control total-amount" name="items[${itemIndex}][total_amount]" readonly></td>
+                <td data-label="Total Amount"><input type="text" class="form-control total-amount" name="items[${itemIndex}][total_amount]" readonly></td>
                 <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
             </tr>
         `;
@@ -459,8 +512,8 @@ input[readonly] {
                 const requiredFields = {
                     'company': 'Company is required',
                     'customer': 'Customer is required',
-                    'invoice_date': 'Invoice date is required',
-                    'due_date': 'Due date is required'
+                    'invoice_number': 'Invoice number is required',
+                   
                 };
                 
                 $.each(requiredFields, function(field, message) {

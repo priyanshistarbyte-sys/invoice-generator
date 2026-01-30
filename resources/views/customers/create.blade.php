@@ -86,7 +86,6 @@
                 // Required fields validation
                 const requiredFields = {
                     'name': 'Name is required',
-                    'email': 'Email is required'
                 };
 
                 $.each(requiredFields, function(field, message) {
@@ -100,15 +99,6 @@
                         isValid = false;
                     }
                 });
-
-                // Email validation
-                const email = $('[name="email"]').val().trim();
-                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                    $('[name="email"]').addClass('is-invalid');
-                    $('[name="email"]').closest('.mb-3').append(
-                        '<div class="error-message text-danger mt-1">Please enter a valid email</div>');
-                    isValid = false;
-                }
 
                 if (!isValid) {
                     e.preventDefault();

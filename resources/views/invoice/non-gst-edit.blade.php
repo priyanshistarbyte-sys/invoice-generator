@@ -82,6 +82,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>Description</th>
+                                                    <th>Sub Description</th>
                                                     <th>Amount <span id="currencySymbol">{{ $invoice->currency == 'USD' ? '$' : ($invoice->currency == 'AUD' ? 'AU$' : '₹') }}</span></th>
                                                     <th>Action</th>
                                                 </tr>
@@ -89,9 +90,9 @@
                                             <tbody id="itemsBody">
                                                 @foreach($invoice->items as $index => $item)
                                                 <tr class="item-row">
-                                                    <td><input type="text" class="form-control"
-                                                            name="items[{{ $index }}][description]" value="{{ $item->description }}" required></td>
-                                                    <td><input type="number" class="form-control total-amount"
+                                                    <td data-label="Description"><textarea class="form-control" name="items[{{ $index }}][description]" rows="2" required>{{ $item->description }}</textarea></td>
+                                                    <td data-label="Sub Description"><textarea class="form-control" name="items[{{ $index }}][sub_description]" rows="2">{{ $item->sub_description }}</textarea></td>
+                                                    <td data-label="Amount"><input type="number" class="form-control total-amount"
                                                             name="items[{{ $index }}][total_amount]" value="{{ $item->total_amount }}" step="0.01" min="0" required></td>
                                                     <td>
                                                         @if($index > 0)
@@ -173,6 +174,52 @@
     <style>
         input[readonly] {
             background-color: #dde2e7 !important;
+        }
+
+        @media (max-width: 768px) {
+            #itemsTable {
+                font-size: 12px;
+            }
+            
+            #itemsTable thead {
+                display: none;
+            }
+            
+            #itemsTable tbody tr {
+                display: block;
+                border: 1px solid #ddd;
+                margin-bottom: 15px;
+                padding: 10px;
+                border-radius: 5px;
+                background: #f9f9f9;
+            }
+            
+            #itemsTable tbody td {
+                display: block;
+                text-align: left !important;
+                border: none;
+                padding: 5px 0;
+                position: relative;
+                padding-left: 35%;
+            }
+            
+            #itemsTable tbody td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 30%;
+                font-weight: bold;
+                color: #333;
+            }
+            
+            #itemsTable tbody td:last-child {
+                text-align: center !important;
+                padding-left: 0;
+            }
+            
+            #itemsTable tbody td:last-child:before {
+                display: none;
+            }
         }
     </style>
 @endpush
@@ -279,8 +326,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const tbody = document.getElementById('itemsBody');
         const newRow = `
             <tr class="item-row">
-                <td><input type="text" class="form-control" name="items[${itemIndex}][description]" required></td>
-                <td><input type="number" class="form-control total-amount" step="0.01" min="0" name="items[${itemIndex}][total_amount]" required></td>
+                <td data-label="Description"><textarea class="form-control" name="items[${itemIndex}][description]" rows="2" required ></textarea></td>
+                <td data-label="Sub Description"><textarea class="form-control" name="items[${itemIndex}][sub_description]" rows="2"></textarea></td>
+                <td data-label="Amount"><input type="number" class="form-control total-amount" step="0.01" min="0" name="items[${itemIndex}][total_amount]" required></td>
                 <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
             </tr>
         `;
@@ -372,8 +420,7 @@ $('#invoiceForm').on('submit', function(e) {
     const requiredFields = {
         'company': 'Company is required',
         'customer': 'Customer is required',
-        'invoice_date': 'Invoice date is required',
-        'due_date': 'Due date is required'
+        'invoice_number': 'Invoice number is required',
     };
     
     $.each(requiredFields, function(field, message) {

@@ -15,16 +15,45 @@ use Illuminate\Support\Facades\Crypt;
 
 class InvoiceController extends Controller
 {
+    public function companiesList(Request $request)
+    {
+        if ($request->ajax()) {
+            $companies = Company::withCount('invoices')->get();
+            return DataTables::of($companies)
+                ->addColumn('action', function ($company) {
+                    return '<a href="' . route('invoice.index', ['company_id' => $company->id]) . '" class="btn btn-sm btn-primary">View Invoices</a>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        return view('invoice.companies');
+    }
+
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Invoice::with(['company_name', 'customer_name'])->orderBy('id', 'desc');
+            $query = Invoice::with(['company_name', 'customer_name', 'items'])->orderBy('id', 'desc');
+            
+            if ($request->has('company_id') && $request->company_id) {
+                $query->where('company', $request->company_id);
+            }
+            
             return DataTables::of($query)
                 ->addColumn('company', function ($invoice) {
                     return $invoice->company_name ? $invoice->company_name->name : '-';
                 })
                 ->addColumn('customer', function ($invoice) {
                     return $invoice->customer_name ? $invoice->customer_name->name : '-';
+                })
+                ->addColumn('total_amount', function ($invoice) {
+                    $totalAmount = $invoice->items->sum('total_amount');
+                    $currency = $invoice->currency == 'USD' ? '$' : '₹';
+                    return $currency . number_format($totalAmount, 2);
+                })
+                ->filterColumn('total_amount', function($query, $keyword) {
+                    $query->whereHas('items', function($q) use ($keyword) {
+                        $q->havingRaw('SUM(total_amount) LIKE ?', ["%{$keyword}%"]);
+                    });
                 })
                 ->addColumn('actions', function ($invoice) {
                     if($invoice->type == 1)
@@ -53,7 +82,8 @@ class InvoiceController extends Controller
                 ->rawColumns(['company','customer','actions'])
                 ->make(true);
         }
-        return view('invoice.index');
+        $companies = Company::all();
+        return view('invoice.index', compact('companies'));
     }
 
     public function create()
@@ -133,6 +163,7 @@ class InvoiceController extends Controller
             $invoice_item               = new InvoiceItem();
             $invoice_item->invoice_id   = $invoice->id;
             $invoice_item->description  = $item['description'];
+            $invoice_item->sub_description  = $item['sub_description'] ?? null;
             $invoice_item->hsn          = $item['hsn'];
             $invoice_item->quantity     = $item['quantity'] ?? 0;
             $invoice_item->rate         = $item['rate'];
@@ -208,6 +239,7 @@ class InvoiceController extends Controller
             $invoice_item               = new InvoiceItem();
             $invoice_item->invoice_id   = $invoice->id;
             $invoice_item->description  = $item['description'];
+            $invoice_item->sub_description  = $item['sub_description'] ?? null;
             $invoice_item->hsn          = $item['hsn'];
             $invoice_item->quantity     = isset($item['quantity']) ? $item['quantity'] : 0;
             $invoice_item->rate         = $item['rate'];
@@ -327,6 +359,7 @@ class InvoiceController extends Controller
             $invoice_item               = new InvoiceItem();
             $invoice_item->invoice_id   = $invoice->id;
             $invoice_item->description  = $item['description'];
+            $invoice_item->sub_description  = $item['sub_description'] ?? null;
             $invoice_item->total_amount = $item['total_amount'];
             $invoice_item->save();
         }
@@ -380,6 +413,7 @@ class InvoiceController extends Controller
                 $invoice_item               = new InvoiceItem();
                 $invoice_item->invoice_id   = $invoice->id;
                 $invoice_item->description  = $item['description'];
+                $invoice_item->sub_description  = $item['sub_description'] ?? null;
                 $invoice_item->total_amount = $item['total_amount'];
                 $invoice_item->save();
             }

@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('company', CompanyController::class);
     Route::get('/company/{id}/details', [CompanyController::class, 'getDetails'])->name('company.details');
     // invoice
+    Route::get('/companies-list', [InvoiceController::class, 'companiesList'])->name('companies.list');
     Route::resource('invoice', InvoiceController::class);
     Route::get('/invoice/download/{id}', [InvoiceController::class, 'downloadPDF'])->name('invoice.pdf');
     Route::delete('/invoice/item/{id}', [InvoiceController::class, 'deleteItem'])->name('invoice.item.delete');

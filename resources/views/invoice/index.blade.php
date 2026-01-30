@@ -4,7 +4,17 @@
 @section('content')
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0"></h5>
+        <h5 class="mb-0">
+            @if(request('company_id'))
+                @php
+                    $selectedCompany = $companies->find(request('company_id'));
+                @endphp
+                Invoices for {{ $selectedCompany ? $selectedCompany->name : 'Unknown Company' }}
+                <a href="{{ route('invoice.index') }}" class="btn btn-secondary ms-2">View All</a>
+            @else
+                <a href="{{ route('companies.list') }}" class="btn btn-secondary ms-2">View by Company</a>
+            @endif
+        </h5>
         <div>
             <a href="{{ route('invoice.create') }}" class="btn btn-success">GST Invoice</a>
             <a href="{{ route('invoice.non-gst') }}" class="btn btn-primary" style="margin-left: 3px;">Non-GST Invoice</a>
@@ -24,8 +34,8 @@
                         <th>Invoice Number</th>
                         <th>Company</th>
                         <th>Customer</th>
+                        <th>Amount</th>
                         <th>Invoice Date</th>
-                        <th>Due Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -42,13 +52,18 @@
         $('#invoice-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{{ route('invoice.index') }}',
+            ajax: {
+                url: '{{ route('invoice.index') }}',
+                data: function(d) {
+                    d.company_id = '{{ request('company_id') }}';
+                }
+            },
             columns: [
                 {data: 'invoice_number', name: 'invoice_number' },
                 {data: 'company', name: 'company'},
                 {data: 'customer', name: 'customer'},
+                {data: 'total_amount', name: 'total_amount'},
                 {data: 'invoice_date', name: 'invoice_date'},
-                {data: 'due_date', name: 'due_date'},
                 { data: 'actions', name: 'actions', orderable: false, searchable: false },
             ]
         });

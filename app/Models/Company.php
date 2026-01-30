@@ -30,4 +30,9 @@ class Company extends Model
     {
         return $this->hasMany(User::class, 'created_by', 'id');
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'company', 'id');
+    }
 }

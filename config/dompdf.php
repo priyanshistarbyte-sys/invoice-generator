@@ -217,14 +217,81 @@ return [
         'dpi' => 96,
 
         /**
+         * Enable embedded PHP
+         *
+         * If this setting is set to true then DOMPDF will automatically evaluate embedded PHP contained
+         * within <script type="text/php"> ... </script> tags.
+         *
+         * ==== IMPORTANT ==== Enabling this for documents you do not trust (e.g. arbitrary remote html pages)
+         * is a security risk.
+         * Embedded scripts are run with the same level of system access available to dompdf.
+         * Set this option to false (recommended) if you wish to process untrusted documents.
+         * This setting may increase the risk of system exploit.
+         * Do not change this settings without understanding the consequences.
+         * Additional documentation is available on the dompdf wiki at:
+         * https://github.com/dompdf/dompdf/wiki
+         *
+         * @var bool
+         */
+        'enable_php' => false,
+
+        /**
+         * Rnable inline JavaScript
+         *
+         * If this setting is set to true then DOMPDF will automatically insert JavaScript code contained
+         * within <script type="text/javascript"> ... </script> tags as written into the PDF.
+         * NOTE: This is PDF-based JavaScript to be executed by the PDF viewer,
+         * not browser-based JavaScript executed by Dompdf.
+         *
+         * @var bool
+         */
+        'enable_javascript' => true,
+
+        /**
          * Enable remote file access
+         *
+         *  If this setting is set to true, DOMPDF will access remote sites for
+         *  images and CSS files as required.
+         *
+         *  ==== IMPORTANT ====
+         *  This can be a security risk, in particular in combination with isPhpEnabled and
+         *  allowing remote html code to be passed to $dompdf = new DOMPDF(); $dompdf->load_html(...);
+         *  This allows anonymous users to download legally doubtful internet content which on
+         *  tracing back appears to being downloaded by your server, or allows malicious php code
+         *  in remote html pages to be executed by your server with your account privileges.
+         *
+         *  This setting may increase the risk of system exploit. Do not change
+         *  this settings without understanding the consequences. Additional
+         *  documentation is available on the dompdf wiki at:
+         *  https://github.com/dompdf/dompdf/wiki
          *
          * @var bool
          */
         'enable_remote' => false,
 
         /**
+         * List of allowed remote hosts
+         *
+         * Each value of the array must be a valid hostname.
+         *
+         * This will be used to filter which resources can be loaded in combination with
+         * isRemoteEnabled. If enable_remote is FALSE, then this will have no effect.
+         *
+         * Leave to NULL to allow any remote host.
+         *
+         * @var array|null
+         */
+        'allowed_remote_hosts' => null,
+
+        /**
+         * A ratio applied to the fonts height to be more like browsers' line height
+         */
+        'font_height_ratio' => 1.1,
+
+        /**
          * Use the HTML5 Lib parser
+         *
+         * @deprecated This feature is now always on in dompdf 2.x
          *
          * @var bool
          */

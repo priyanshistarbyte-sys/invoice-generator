@@ -47,7 +47,7 @@
         .company-info h3, .bill-to h2 {
             font-size: 14px;
             font-weight: bold;
-            color: #2c3e50;
+            color: #34485e;
             margin-bottom: 2px;
         }
         .company-info p, .bill-to p {
@@ -58,7 +58,7 @@
 
         .invoice-title h1 {
             font-size: 28px;
-            color: #2ea043;
+            color: #66bb27;
             font-weight: bold;
             margin-bottom: 5px;
         }
@@ -109,7 +109,7 @@
         .bill-to h3, .invoice-details h3 {
             font-size: 14px;
             margin-bottom: 2px;
-            color: #2c3e50;
+            color: #34485e;
             font-weight: bold;
         }
         .bill-to p {
@@ -137,8 +137,8 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         .items-table th {
-            background-color: #2ea043;
-            color: #2c3e50;
+            background-color: #66bb27;
+            color: #34485e;
             padding: 6px 4px;
             text-align: left;
             font-size: 13px;
@@ -178,16 +178,16 @@
         .totals-table .amount {
             text-align: right;
             font-weight: bold;
-            color: #2c3e50;
+            color: #34485e;
         }
         .total-row {
-            background-color: #2ea043;
+            background-color: #66bb27;
             color: #fff;
         }
 
         .total-row .label,
         .total-row .amount {
-            color: #2c3e50;
+            color: #34485e;
             font-size: 11px;
             font-weight: bold;
         }
@@ -208,7 +208,7 @@
         .notes-section h3, .terms-section h3 {
             font-size: 14px;
             margin-bottom: 5px;
-            color: #2c3e50;
+            color: #34485e;
             padding-bottom: 2px;
         }
         .terms-section p, .notes-section p {
@@ -439,7 +439,12 @@
                 @foreach($invoice->items ?? [] as $key => $item)
                     <tr>
                         <td class="text-center">{{ $key + 1 }}</td>
-                        <td class="text-center">{{ $item->description }}</td>
+                        <td class="text-center">
+                            <strong>{{ $item->description }}</strong>
+                            @if(!empty($item->sub_description))
+                                <br><span style="font-weight: normal;">{{ $item->sub_description }}</span>
+                            @endif
+                        </td>
                         <td class="text-center"><strong>{{ $currencySymbol }}{{ number_format((float)$item->total_amount, 2) }}</strong></td>
                     </tr>
                 @endforeach
@@ -454,7 +459,7 @@
             <div style="width: 48%; float: left; padding-right: 2%;">
                 @if($invoice->company_name->bank_details)
                 <div style="border: 1px solid #ddd; padding: 15px; background-color: #f9f9f9; min-height: 120px;">
-                    <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #2c3e50;">Bank Details</h4>
+                    <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #34485e;">Bank Details</h4>
                     <div style="font-size: 12px; line-height: 1.5;">{!! nl2br(e($invoice->company_name->bank_details)) !!}</div>
                 </div>
                 @endif

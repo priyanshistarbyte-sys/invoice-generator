@@ -58,7 +58,8 @@ class CompanyController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            $messages = $validator->getMessageBag();
+            return redirect()->back()->with('error', $messages->first());
         }
        
         $path = null;
@@ -101,6 +102,7 @@ class CompanyController extends Controller
 
     public function update(Request $request, Company $company)
     {
+       
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
@@ -108,7 +110,8 @@ class CompanyController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            $messages = $validator->getMessageBag();
+            return redirect()->back()->with('error', $messages->first());
         }
 
         $path = null;

@@ -447,12 +447,13 @@
             <thead>
                 <tr>
                     <th style="width:5%; text-align:center;">No</th>
-                    <th style="width:35%; text-align:center;">Description</th>
+                    <th style="width:30%; text-align:center;">Description</th>
                     <th style="width:10%; text-align:center;">HSN/SAC</th>
                     <th style="width:8%; text-align:center;">Qty</th>
-                    <th style="width:12%; text-align:center;">Rate </th>
+                    <th style="width:10%; text-align:center;">Rate</th>
+                    <th style="width:10%; text-align:center;">Amount</th>
                     <th style="width:12%; text-align:center;">Tax</th>
-                    <th style="width:15%; text-align:center;">Amount</th>
+                    <th style="width:15%; text-align:center;">Total Amount</th>
                 </tr>
             </thead>
             <tbody>
@@ -483,6 +484,7 @@
                         <td class="text-center">{{ $item->hsn ?? '-' }}</td>
                         <td class="text-center">{{ number_format((float)$qty, 2) }}</td>
                         <td class="text-center">{{ $currencySymbol }}{{ number_format((float)$rate, 2) }}</td>
+                        <td class="text-center">{{ $currencySymbol }}{{ number_format((float)$itemTotal, 2) }}</td>
                         <td class="text-center">
                             @if($taxAmount > 0)
                                 {{ $currencySymbol }}{{ number_format((float)$taxAmount, 2) }}

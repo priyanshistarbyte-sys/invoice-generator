@@ -124,8 +124,6 @@ input[readonly] {
                                         <label class="form-label">Currency</label>
                                         <select class="form-select" name="currency" id="currencySelect" required>
                                             <option value="INR" {{ $invoice->currency == 'INR' ? 'selected' : '' }}>₹ Rupees (INR)</option>
-                                            <option value="USD" {{ $invoice->currency == 'USD' ? 'selected' : '' }}>$ Dollar (USD)</option>
-                                            <option value="AUD" {{ $invoice->currency == 'AUD' ? 'selected' : '' }}>AU$ Australian Dollar (AUD)</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
@@ -151,8 +149,9 @@ input[readonly] {
                                                 <th>HSN/SAC</th>
                                                 <th>Quantity</th>
                                                 <th>Rate</th>
+                                                <th>Amount <span id="currencySymbol">₹</span></th>
                                                 <th>Tax</th>
-                                                <th>Total Amount <span id="currencySymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span></th>
+                                                <th>Total Amount <span id="currencySymbol2">₹</span></th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -166,6 +165,7 @@ input[readonly] {
                                                 <td data-label="HSN/SAC"><input type="number" class="form-control hsn" name="items[{{ $index }}][hsn]" value="{{ $item->hsn }}"></td>
                                                 <td data-label="Quantity"><input type="number" class="form-control quantity" name="items[{{ $index }}][quantity]" value="{{ $item->quantity }}" step="0.01" min="1"></td>
                                                 <td data-label="Rate"><input type="number" class="form-control rate" name="items[{{ $index }}][rate]" value="{{ $item->rate }}" step="0.01" min="0" required></td>
+                                                <td data-label="Amount"><input type="text" class="form-control amount" value="{{ $item->quantity * $item->rate }}" readonly></td>
                                                 <td data-label="Tax">
                                                     <select class="form-select tax-type" name="items[{{ $index }}][tax_type]">
                                                         <option value="none" {{ $item->tax_type == 'none' ? 'selected' : '' }}>No Tax</option>
@@ -204,35 +204,35 @@ input[readonly] {
                                             <tbody>
                                                 <tr>
                                                     <td class="text-end border-0"><strong>Sub Total</strong></td>
-                                                    <td class="text-end border-0"><span id="summarySymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="subTotal">0.00</span></td>
+                                                    <td class="text-end border-0"><span id="summarySymbol">₹</span><span id="subTotal">0.00</span></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="text-end border-0"><strong>IGST (18%)</strong></td>
-                                                    <td class="text-end border-0"><span id="igstSymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="igstAmount">0.00</span></td>
+                                                    <td class="text-end border-0"><span id="igstSymbol">₹</span><span id="igstAmount">0.00</span></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="text-end border-0"><strong>SGST (9%)</strong></td>
-                                                    <td class="text-end border-0"><span id="sgstSymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="sgstAmount">0.00</span></td>
+                                                    <td class="text-end border-0"><span id="sgstSymbol">₹</span><span id="sgstAmount">0.00</span></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="text-end border-0"><strong>CGST (9%)</strong></td>
-                                                    <td class="text-end border-0"><span id="cgstSymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="cgstAmount">0.00</span></td>
+                                                    <td class="text-end border-0"><span id="cgstSymbol">₹</span><span id="cgstAmount">0.00</span></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="text-end border-0"><strong>Total Tax</strong></td>
-                                                    <td class="text-end border-0"><span id="taxSymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="totalTax">0.00</span></td>
+                                                    <td class="text-end border-0"><span id="taxSymbol">₹</span><span id="totalTax">0.00</span></td>
                                                 </tr>
                                                 <tr class="border-top">
                                                     <td class="text-end"><strong>Total Amount</strong></td>
-                                                    <td class="text-end"><strong><span id="totalSymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="grandTotal">0.00</span></strong></td>
+                                                    <td class="text-end"><strong><span id="totalSymbol">₹</span><span id="grandTotal">0.00</span></strong></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="text-end border-0"><strong>Payment Made</strong></td>
-                                                    <td class="text-end border-0"><span id="paymentSymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="paymentAmount">0.00</span></td>
+                                                    <td class="text-end border-0"><span id="paymentSymbol">₹</span><span id="paymentAmount">0.00</span></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="text-end border-0"><strong>Balance Due</strong></td>
-                                                    <td class="text-end border-0"><span id="balanceSymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="balanceDue">0.00</span></td>
+                                                    <td class="text-end border-0"><span id="balanceSymbol">₹</span><span id="balanceDue">0.00</span></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="text-end border-0"><strong>Total in Words</strong></td>
@@ -277,6 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td data-label="HSN/SAC"><input type="number" class="form-control hsn" name="items[${itemIndex}][hsn]"></td>
                 <td data-label="Quantity"><input type="number" class="form-control quantity" name="items[${itemIndex}][quantity]" step="0.01" min="1" value="1"></td>
                 <td data-label="Rate"><input type="number" class="form-control rate" name="items[${itemIndex}][rate]" step="0.01" min="0" required></td>
+                <td data-label="Amount"><input type="text" class="form-control amount" readonly></td>
                 <td data-label="Tax">
                     <select class="form-select tax-type" name="items[${itemIndex}][tax_type]">
                         <option value="none">No Tax</option>
@@ -367,6 +368,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const taxType = row.querySelector('.tax-type').value;
 
         const subtotal = quantity * rate;
+        row.querySelector('.amount').value = subtotal.toFixed(2);
+        
         let taxRate = 0;
         if (taxType === 'igst') {
             taxRate = 18;
@@ -383,8 +386,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function calculateSummary() {
-        const currency = document.getElementById('currencySelect').value;
-        const symbol = currency === 'USD' ? '$' : currency === 'AUD' ? 'AU$' : '₹';
+        const currency = 'INR';
+        const symbol = '₹';
         
         let subTotal = 0;
         let totalIgst = 0;
@@ -491,10 +494,10 @@ document.addEventListener('DOMContentLoaded', function() {
             result += convertHundreds(rupees);
         }
         
-        const currencyName = currency === 'USD' ? 'Dollar' : currency === 'AUD' ? 'Dollar' : 'Rupee';
-        const subUnit = currency === 'USD' ? 'Cent' : currency === 'AUD' ? 'Cent' : 'Paise';
+        const currencyName = 'Rupee';
+        const subUnit = 'Paise';
         
-        result = (currency === 'USD' ? 'US ' : currency === 'AUD' ? 'Australian ' : 'Indian ') + currencyName + ' ' + result.trim();
+        result = 'Indian ' + currencyName + ' ' + result.trim();
         
         if (paise > 0) {
             result += ' and ' + convertHundreds(paise).trim() + ' ' + subUnit;
@@ -503,17 +506,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return result + ' Only';
     }
     
-    // Update currency symbol in table header
-    document.getElementById('currencySelect').addEventListener('change', function() {
-        const currency = this.value;
-        const symbol = currency === 'USD' ? '$' : currency === 'AUD' ? 'AU$' : '₹';
-        document.getElementById('currencySymbol').textContent = symbol;
-        
-        // Recalculate all rows
-        document.querySelectorAll('.item-row').forEach(row => {
-            calculateRowTotal(row);
-        });
-    });
+
     
     // Initial calculation
     calculateSummary();
@@ -530,13 +523,8 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch(`{{ url('/company') }}/${companyId}/details`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.currency) {
-                        document.getElementById('currencySelect').value = data.currency;
-                        // Update currency symbol and recalculate
-                        const symbol = data.currency === 'USD' ? '$' : data.currency === 'AUD' ? 'AU$' : '₹';
-                        document.getElementById('currencySymbol').textContent = symbol;
-                        calculateSummary();
-                    }
+                    // Currency is fixed to INR
+                    calculateSummary();
                 })
                 .catch(error => console.error('Error:', error));
         }

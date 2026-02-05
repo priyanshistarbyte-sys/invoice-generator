@@ -114,8 +114,6 @@ input[readonly] {
                                             <label class="form-label">Currency</label>
                                             <select class="form-select" name="currency" id="currencySelect" required>
                                                 <option value="INR">₹ Rupees (INR)</option>
-                                                <option value="USD">$ Dollar (USD)</option>
-                                                <option value="AUD">AU$ Australian Dollar (AUD)</option>
                                             </select>
                                         </div>
                                          <div class="col-md-6 mb-3">
@@ -142,8 +140,9 @@ input[readonly] {
                                                     <th>HSN/SAC</th>
                                                     <th>Quantity</th>
                                                     <th>Rate</th>
+                                                    <th>Amount <span id="currencySymbol">₹</span></th>
                                                     <th>Tax</th>
-                                                    <th>Total Amount <span id="currencySymbol">₹</span></th>
+                                                    <th>Total Amount <span id="currencySymbol2">₹</span></th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
@@ -159,6 +158,7 @@ input[readonly] {
                                                     <td data-label="Rate"><input type="number" class="form-control rate"
                                                             name="items[0][rate]" step="0.01" min="0" required>
                                                     </td>
+                                                    <td data-label="Amount"><input type="text" class="form-control amount" readonly></td>
                                                     <td data-label="Tax">
                                                         <select class="form-select tax-type" name="items[0][tax_type]">
                                                             <option value="none">No Tax</option>
@@ -278,6 +278,7 @@ input[readonly] {
                 <td data-label="HSN/SAC"><input type="number" class="form-control hsn" name="items[${itemIndex}][hsn]"></td>
                 <td data-label="Quantity"><input type="number" class="form-control quantity" name="items[${itemIndex}][quantity]" step="0.01" min="1" value="1"></td>
                 <td data-label="Rate"><input type="number" class="form-control rate" name="items[${itemIndex}][rate]" step="0.01" min="0" required></td>
+                <td data-label="Amount"><input type="text" class="form-control amount" readonly></td>
                 <td data-label="Tax">
                     <select class="form-select tax-type" name="items[${itemIndex}][tax_type]">
                         <option value="none">No Tax</option>
@@ -324,6 +325,8 @@ input[readonly] {
                 const taxType = row.querySelector('.tax-type').value;
 
                 const subtotal = quantity * rate;
+                row.querySelector('.amount').value = subtotal.toFixed(2);
+                
                 let taxRate = 0;
                 if (taxType === 'igst') {
                     taxRate = 18;
@@ -340,8 +343,8 @@ input[readonly] {
             }
 
             function calculateSummary() {
-                const currency = document.getElementById('currencySelect').value;
-                const symbol = currency === 'USD' ? '$' : currency === 'AUD' ? 'AU$' : '₹';
+                const currency = 'INR';
+                const symbol = '₹';
 
                 let subTotal = 0;
                 let totalIgst = 0;
@@ -451,10 +454,10 @@ input[readonly] {
                     result += convertHundreds(rupees);
                 }
 
-                const currencyName = currency === 'USD' ? 'Dollar' : currency === 'AUD' ? 'Dollar' : 'Rupee';
-                const subUnit = currency === 'USD' ? 'Cent' : currency === 'AUD' ? 'Cent' : 'Paise';
+                const currencyName = 'Rupee';
+                const subUnit = 'Paise';
 
-                result = (currency === 'USD' ? 'US ' : currency === 'AUD' ? 'Australian ' : 'Indian ') + currencyName + ' ' + result.trim();
+                result = 'Indian ' + currencyName + ' ' + result.trim();
 
                 if (paise > 0) {
                     result += ' and ' + convertHundreds(paise).trim() + ' ' + subUnit;
@@ -463,17 +466,7 @@ input[readonly] {
                 return result + ' Only';
             }
 
-            // Update currency symbol in table header
-            document.getElementById('currencySelect').addEventListener('change', function() {
-                const currency = this.value;
-                const symbol = currency === 'USD' ? '$' : currency === 'AUD' ? 'AU$' : '₹';
-                document.getElementById('currencySymbol').textContent = symbol;
 
-                // Recalculate all rows
-                document.querySelectorAll('.item-row').forEach(row => {
-                    calculateRowTotal(row);
-                });
-            });
 
             // Initial calculation
             calculateSummary();
@@ -490,13 +483,8 @@ input[readonly] {
                     fetch(`{{ url('/company') }}/${companyId}/details`)
                         .then(response => response.json())
                         .then(data => {
-                            if (data.currency) {
-                                document.getElementById('currencySelect').value = data.currency;
-                                // Update currency symbol and recalculate
-                                const symbol = data.currency === 'USD' ? '$' : data.currency === 'AUD' ? 'AU$' : '₹';
-                                document.getElementById('currencySymbol').textContent = symbol;
-                                calculateSummary();
-                            }
+                            // Currency is fixed to INR
+                            calculateSummary();
                         })
                         .catch(error => console.error('Error:', error));
                 }

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $totalInvoices = \App\Models\Invoice::where('created_by', auth()->id())->count();
         $totalRevenue = \App\Models\Invoice::where('created_by', auth()->id())->sum('paid_amount');
@@ -16,13 +16,21 @@ class DashboardController extends Controller
         $paidInvoices = \App\Models\Invoice::where('created_by', auth()->id())
             ->whereRaw('paid_amount >= (SELECT SUM(total_amount) FROM invoice_items WHERE invoice_id = invoices.id)')
             ->count();
-        $recentInvoices = \App\Models\Invoice::with(['customer_name', 'items'])
-            ->where('created_by', auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
+        
+        $query = \App\Models\Invoice::with(['customer_name', 'items'])
+            ->where('created_by', auth()->id());
+        
+        if ($request->filled('month')) {
+            $query->whereYear('created_at', substr($request->month, 0, 4))
+                  ->whereMonth('created_at', substr($request->month, 5, 2));
+        } else {
+            $query->limit(5);
+        }
+        
+        $recentInvoices = $query->orderBy('created_at', 'desc')->get();
+        $selectedMonth = $request->month;
             
-        return view('dashboard', compact('totalInvoices', 'totalRevenue', 'pendingInvoices', 'paidInvoices', 'recentInvoices'));
+        return view('dashboard', compact('totalInvoices', 'totalRevenue', 'pendingInvoices', 'paidInvoices', 'recentInvoices', 'selectedMonth'));
     }
 
    

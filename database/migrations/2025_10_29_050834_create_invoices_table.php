@@ -22,7 +22,7 @@ return new class extends Migration
                 $table->foreignId('customer')->constrained('customers')->onDelete('cascade');
                 $table->string('currency');
                 $table->string('terms')->nullable();
-                $table->decimal('paid_amount', 8, 2)->default(0.00);
+                $table->decimal('paid_amount', 15, 2)->default(0.00);
                 $table->integer('type')->default(1);
                 $table->integer('created_by')->default(0);
                 $table->timestamps();
